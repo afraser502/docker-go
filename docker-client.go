@@ -15,6 +15,9 @@ import (
 //Arg1 = repo name
 //Arg2 = tag
 func main() {
+	//Set main variables
+	newRepo := "afraser502/" //new-repo name for retagging
+
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -36,6 +39,10 @@ func main() {
 		imageTag = os.Args[2]
 	}
 
+	splitImageName := strings.Split(imageName, "/")
+	fmt.Println(splitImageName[0])
+	//fmt.Println(splitImageName[1])
+
 	imageFullname := ""
 	if imageTag != "" {
 		imageFullname = imageName + `:` + imageTag
@@ -51,7 +58,7 @@ func main() {
 	}
 
 	//If image downloads successfully, retag image
-	reTagImage(imageFullname, imageTag)
+	defer reTagImage(imageFullname, imageTag, newRepo, splitImageName[0])
 
 	defer out.Close()
 
@@ -60,17 +67,43 @@ func main() {
 }
 
 //Function to retag image
-func reTagImage(imageFullname string, imageTag string) {
+func reTagImage(imageFullname string, imageTag string, newRepo string, splitImageName string) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		panic(err)
 	}
 
-	//Set your repo name here
-	newRepo := "your-repo"
-	err1 := cli.ImageTag(ctx, imageFullname, newRepo+`:`+imageTag)
+	newImageFullName := newRepo + splitImageName + `:` + imageTag
+	fmt.Println(newImageFullName)
+	fmt.Println(imageFullname)
+	err1 := cli.ImageTag(ctx, imageFullname, newImageFullName)
 	if err1 != nil {
 		panic(err1)
 	}
+
+	//ImagePush(newImageFullName)
 }
+
+//Function to push retagged image to new registry
+/*func ImagePush(newImageFullName string) {
+	ctx := context.Background()
+	cli, err := client.NewEnvClient()
+	auth := types.AuthConfig{
+		Username: cfg.User,
+		Password: cfg.Passwd,
+	}
+	authBytes, _ := json.Marshal(auth)
+	authBase64 := base64.URLEncoding.EncodeToString(authBytes)
+
+	out, err := cli.ImagePush(ctx, newImageFullName, types.ImagePushOptions{})
+	if err != nil {
+		panic(err)
+	}
+	out.Close()
+
+
+	//io.ReadCloser()
+}
+*/
+//(ctx context.Context, image string, options types.ImagePushOptions) (io.ReadCloser, error)
