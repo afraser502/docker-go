@@ -66,6 +66,7 @@ func reTagImage(imageFullname string, imageTag string) {
 	if err != nil {
 		panic(err)
 	}
+
 	//Set your repo name here
 	newRepo := "your-repo"
 	err1 := cli.ImageTag(ctx, imageFullname, newRepo+`:`+imageTag)
