@@ -11,6 +11,9 @@ import (
 	"golang.org/x/net/context"
 )
 
+//Main function used to pull image based upon command line args
+//Arg1 = repo name
+//Arg2 = tag
 func main() {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
@@ -37,36 +40,36 @@ func main() {
 	if imageTag != "" {
 		imageFullname = imageName + `:` + imageTag
 	} else {
-		imageFullname = imageName
-	}
+		imageTag = "latest"
+		imageFullname = imageName + `:` + imageTag
 
-	fmt.Println(imageFullname)
+	}
 
 	out, err := cli.ImagePull(ctx, imageFullname, types.ImagePullOptions{})
 	if err != nil {
 		panic(err)
 	}
 
+	//If image downloads successfully, retag image
+	reTagImage(imageFullname, imageTag)
+
 	defer out.Close()
 
 	io.Copy(os.Stdout, out)
 
-	reTagImage(imageFullname, imageTag)
 }
 
+//Function to retag image
 func reTagImage(imageFullname string, imageTag string) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		panic(err)
 	}
-	out, err := cli.ImageTag(ctx, imageFullname, "test"+`:`+imageTag)
-	if err != nil {
-		panic(err)
+	//Set your repo name here
+	newRepo := "your-repo"
+	err1 := cli.ImageTag(ctx, imageFullname, newRepo+`:`+imageTag)
+	if err1 != nil {
+		panic(err1)
 	}
-
-	defer out.Close()
-
-	io.Copy(os.Stdout, out)
-
 }
