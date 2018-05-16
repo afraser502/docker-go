@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -27,7 +30,7 @@ func main() {
 	imageName := ""
 	imageTag := ""
 
-	fmt.Println(len(os.Args))
+	//fmt.Println(len(os.Args))
 	if len(os.Args) <= 1 {
 		fmt.Println("You must enter the name of an image to download")
 		os.Exit(1)
@@ -40,8 +43,11 @@ func main() {
 	}
 
 	splitImageName := strings.Split(imageName, "/")
-	fmt.Println(splitImageName[0])
-	//fmt.Println(splitImageName[1])
+	//fmt.Println(len(splitImageName))
+
+	intSlice := splitImageName
+	last := intSlice[len(splitImageName)-1]
+	//fmt.Printf("Last element: %v\n", last)
 
 	imageFullname := ""
 	if imageTag != "" {
@@ -58,7 +64,7 @@ func main() {
 	}
 
 	//If image downloads successfully, retag image
-	defer reTagImage(imageFullname, imageTag, newRepo, splitImageName[0])
+	defer reTagImage(imageFullname, imageTag, newRepo, last)
 
 	defer out.Close()
 
@@ -82,28 +88,33 @@ func reTagImage(imageFullname string, imageTag string, newRepo string, splitImag
 		panic(err1)
 	}
 
-	//ImagePush(newImageFullName)
+	ImagePush(newImageFullName)
 }
 
-//Function to push retagged image to new registry
-/*func ImagePush(newImageFullName string) {
+//ImagePush of retagged image to new registry
+func ImagePush(newImageFullName string) {
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
-	auth := types.AuthConfig{
-		Username: cfg.User,
-		Password: cfg.Passwd,
-	}
-	authBytes, _ := json.Marshal(auth)
-	authBase64 := base64.URLEncoding.EncodeToString(authBytes)
 
-	out, err := cli.ImagePush(ctx, newImageFullName, types.ImagePushOptions{})
+	authConfig := types.AuthConfig{
+		Username: "username",
+		Password: "password",
+	}
+	encodedJSON, err := json.Marshal(authConfig)
 	if err != nil {
 		panic(err)
 	}
-	out.Close()
+	authStr := base64.URLEncoding.EncodeToString(encodedJSON)
 
+	out, err := cli.ImagePush(ctx, newImageFullName, types.ImagePushOptions{RegistryAuth: authStr})
+	if err != nil {
+		panic(err)
+	}
 
-	//io.ReadCloser()
+	//Parse the responses of image push
+	responses, err := ioutil.ReadAll(out)
+	fmt.Println(string(responses))
+
+	defer out.Close()
+
 }
-*/
-//(ctx context.Context, image string, options types.ImagePushOptions) (io.ReadCloser, error)
