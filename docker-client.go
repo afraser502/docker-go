@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	"github.com/spf13/viper"
 )
 
 //Main function used to pull image based upon command line args
@@ -19,7 +21,13 @@ import (
 //Arg2 = tag
 func main() {
 	//Set main variables
-	newRepo := "afraser502/" //new-repo name for retagging
+	viper.SetConfigFile("./configs/env.json") //Set config file
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
+
+	newRepo := viper.Get("repo.new") //new-repo name for retagging
 
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
@@ -64,7 +72,7 @@ func main() {
 	}
 
 	//If image downloads successfully, retag image
-	defer reTagImage(imageFullname, imageTag, newRepo, last)
+	defer reTagImage(imageFullname, imageTag, newRepo.(string), last)
 
 	defer out.Close()
 
