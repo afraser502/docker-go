@@ -1,11 +1,21 @@
 DIRT Flow
 
-Login with credentials - (stay logged in if logged in previously)
-Request image details
-Build image downloader request
-Download / re-tag / upload to quarantine area
-Scan on-demand - wait for results
-Link to results
-Manual approve state
-Move to general repo
+1. Login with credentials - (stay logged in if logged in previously)
+
+2. Request image details 
+ - Need to add docker.io / gcr checks etc. 
+ - Need to add authentication where required / docker store etc
+
+3. Build image downloader request
+
+4. Download / re-tag / upload to quarantine area = done
+
+5. Scan on-demand - wait for results 
+ - use twistlci
+
+6. Link to results
+ - call API to retrieve scan output
+
+7. Manual approve state
+ - Move to general repo once approved
 

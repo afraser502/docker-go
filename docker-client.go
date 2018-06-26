@@ -28,7 +28,7 @@ func main() {
 		log.Fatalf("Error reading config file, %s", err)
 	}
 
-	newRepo := viper.Get("repo.new") //new-repo name for retagging
+	newRepo := viper.GetString("repo.new") //new-repo name for retagging
 
 	//Search LDAP
 	search()
@@ -78,7 +78,7 @@ func main() {
 	}
 
 	//If image downloads successfully, retag image
-	defer reTagImage(imageFullname, imageTag, newRepo.(string), last)
+	defer reTagImage(imageFullname, imageTag, newRepo, last)
 
 	defer out.Close()
 
