@@ -14,6 +14,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/spf13/viper"
+	"gopkg.in/ldap.v2"
 )
 
 //Main function used to pull image based upon command line args
@@ -29,8 +30,13 @@ func main() {
 
 	newRepo := viper.Get("repo.new") //new-repo name for retagging
 
+	//Search LDAP
+	search()
+
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
+	//cli, err := client.
+
 	if err != nil {
 		panic(err)
 	}
@@ -125,4 +131,44 @@ func ImagePush(newImageFullName string) {
 
 	defer out.Close()
 
+}
+
+//LDAP Functions
+func search() {
+
+	bindUser := viper.GetString("ldap.username") //bind username
+	bindPass := viper.GetString("ldap.password") //bind password
+	ldapHost := viper.GetString("ldap.host")     // ldap host address
+	ldapPort := viper.GetInt("ldap.port")        // ldap port
+	ldapBaseDN := viper.GetString("ldap.baseDN") // baseDN
+
+	//fmt.Println(ldapHost)
+
+	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldapHost, ldapPort))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer l.Close()
+
+	err = l.Bind(bindUser, bindPass)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		ldapBaseDN, // The base dn to search
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectClass=*))", // The filter to apply
+		[]string{"dn", "cn"}, // A list attributes to retrieve
+		nil,
+	)
+
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, entry := range sr.Entries {
+		fmt.Printf("%s: %v\n", entry.DN, entry.GetAttributeValue("cn"))
+	}
 }

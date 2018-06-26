@@ -1,0 +1,11 @@
+DIRT Flow
+
+Login with credentials - (stay logged in if logged in previously)
+Request image details
+Build image downloader request
+Download / re-tag / upload to quarantine area
+Scan on-demand - wait for results
+Link to results
+Manual approve state
+Move to general repo
+

@@ -1,0 +1,11 @@
+[LDAP]
+https://github.com/osixia/docker-openldap
+
+docker run --name openldap -d -p 389:389 -p 636:636 osixia/openldap:1.2.1
+
+
+QUERY
+ldapsearch -x -H ldap://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+
+ADD
+
