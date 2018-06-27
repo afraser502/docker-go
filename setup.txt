@@ -16,3 +16,12 @@ https://hub.docker.com/_/registry/
 docker run -d -p 5000:5000 --restart always --name registry registry:2
 
 Notes : for insecure registries, you must add the insecure registry info to the client where this is running - testing only. Will be a moot point when using TLS.
+
+TLS Secure host
+docker run -d -p 5000:5000 --restart always --name mvp-registry -v /root/certs/registry:/certs -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/mvp-reg.crt -e REGISTRY_HTTP_TLS_KEY=/certs/mvp-reg.key --privileged registry:2
+
+(requires priviged if selinux is enabled)
+
+On MAC, if using TLS certs, the following dir is required :
+~/.docker/certs.d/<reg-address>
+Copy the cert as required. This is because Docker for MAC copies the certs dir into /etc/docker/certs.d for the Moby VM.

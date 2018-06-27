@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -32,6 +33,8 @@ func main() {
 
 	//Search LDAP
 	search()
+
+	checkTwistcliExists()
 
 	ctx := context.Background()
 	cli, err := client.NewEnvClient()
@@ -170,5 +173,14 @@ func search() {
 
 	for _, entry := range sr.Entries {
 		fmt.Printf("%s: %v\n", entry.DN, entry.GetAttributeValue("cn"))
+	}
+}
+
+func checkTwistcliExists() {
+	path, err := exec.LookPath("twistcli")
+	if err != nil {
+		fmt.Printf("Can't find 'twistcli' executable\n")
+	} else {
+		fmt.Printf("'twistcli' executable is in '%s'\n", path)
 	}
 }
